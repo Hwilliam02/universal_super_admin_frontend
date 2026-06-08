@@ -17,7 +17,6 @@ const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
-  role: z.array(z.string()),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -39,14 +38,15 @@ export default function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
-      role: ['superadmin'],
     },
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
+    // confirmPassword is UI-only; role is set server-side — strip both before sending
+    const { confirmPassword: _cp, ...payload } = data;
     try {
-      await register(data);
+      await register(payload);
       toast({
         title: 'Registration successful',
         description: 'Your account has been created!',

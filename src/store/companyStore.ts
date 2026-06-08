@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type { Company, CreateCompanyData } from '@/types';
-import { createCompany as createCompanyApi, softDeleteCompany as softDeleteCompanyApi, undeleteCompany as undeleteCompanyApi, updateCompanySuppliesStatus as updateCompanySuppliesStatusApi } from '@/api/companyApi';
-import { getTenantUsers } from '@/api/userApi';
+import { getCompanies, createCompany as createCompanyApi, softDeleteCompany as softDeleteCompanyApi, undeleteCompany as undeleteCompanyApi, updateCompanySuppliesStatus as updateCompanySuppliesStatusApi } from '@/api/companyApi';
 import { changeCompanyStatus } from '@/api/authApi';
 
 interface CompanyState {
@@ -24,7 +23,7 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
   fetchCompanies: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await getTenantUsers();
+      const response = await getCompanies();
       
       if ((response.status === 'success' || response.status === true) && response.data) {
         // Validate and clean company data

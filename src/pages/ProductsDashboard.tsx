@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '@/api/axiosConfig';
 
 type Product = {
   _id: string;
@@ -31,12 +32,9 @@ export default function ProductsDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch(`${import.meta.env.VITE_API_URL}/products`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(response => {
+    api.get('/products')
+      .then(res => {
+        const response = res.data;
         const list = Array.isArray(response) 
           ? response 
           : Array.isArray(response.data) 
@@ -75,13 +73,15 @@ export default function ProductsDashboard() {
     setActiveTab('users');
     setUsersLoading(true);
     setUsers([]);
-    const token = localStorage.getItem('token');
-    fetch(`${import.meta.env.VITE_API_URL}/products/by-product-id/${product.product_id}/users`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        setUsers(Array.isArray(data) ? data : []);
+    api.get(`/products/by-product-id/${product.product_id}/users`)
+      .then(res => {
+        const data = res.data;
+        const list = Array.isArray(data) 
+          ? data 
+          : Array.isArray(data?.data) 
+            ? data.data 
+            : [];
+        setUsers(list);
       })
       .catch(() => setError('Failed to load users'))
       .finally(() => setUsersLoading(false));

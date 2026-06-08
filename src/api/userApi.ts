@@ -1,5 +1,5 @@
 import { api } from './axiosConfig';
-import type { ApiResponse, User, Company, GlobalUser } from '@/types';
+import type { ApiResponse, User,  GlobalUser } from '@/types';
 
 export interface CreateSuperAdminData {
   first_name: string;
@@ -11,22 +11,18 @@ export interface CreateSuperAdminData {
 
 // Create super admin
 export const createSuperAdmin = async (data: CreateSuperAdminData): Promise<ApiResponse<User>> => {
-  const response = await api.post('/users/create-super-admin', data);
+  const response = await api.post('/auth/create-super-admin', data);
   return response.data;
 };
 
 // Get all tenants/companies (for super admin) or company users (for admin)
-export const getTenantUsers = async (): Promise<ApiResponse<Company[]>> => {
-  const response = await api.get('/users/tenents');
-  console.log(response.data);
-  return response.data;
-};
+
 
 // Get users by company ID
-export const getCompanyUsers = async (companyId: string): Promise<ApiResponse<User[]>> => {
-  const response = await api.get(`/users/company/${companyId}`);
-  return response.data;
-};
+// export const getCompanyUsers = async (companyId: string): Promise<ApiResponse<User[]>> => {
+//   const response = await api.get(`/users/company/${companyId}`);
+//   return response.data;
+// };
 
 // Update user status
 export const updateUserStatus = async (userId: string, status: 'active' | 'inactive' | 'suspended'): Promise<ApiResponse<User>> => {
@@ -40,7 +36,7 @@ export const restoreUser = async (userId: string): Promise<ApiResponse<User>> =>
 };
 
 export const getGlobalUsers = async (): Promise<ApiResponse<GlobalUser[]>> => {
-  const response = await api.get('/users/global');
+  const response = await api.get('/global-users');
   return response.data;
 };
 
@@ -51,8 +47,7 @@ export const updateGlobalUserStatus = async (globalUserId: string, status: 'Acti
 
 export const userApi = {
   createSuperAdmin,
-  getTenantUsers,
-  getCompanyUsers,
+  // getCompanyUsers,
   updateUserStatus,
   restoreUser,
   getGlobalUsers,

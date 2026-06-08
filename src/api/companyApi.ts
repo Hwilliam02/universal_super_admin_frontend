@@ -29,6 +29,13 @@ export interface CreateDispatcherData {
   password: string;
 }
 
+export const getCompanies = async (): Promise<ApiResponse<Company[]>> => {
+  const response = await api.get('/company');
+  console.log(response.data);
+  return response.data;
+};
+
+
 // Create a new company
 export const createCompany = async (data: CreateCompanyData): Promise<ApiResponse<Company>> => {
   // Create FormData if logo file is present

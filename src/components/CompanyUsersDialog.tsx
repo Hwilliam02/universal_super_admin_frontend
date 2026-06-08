@@ -26,7 +26,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Users, CheckCircle2, XCircle, AlertCircle, Trash2, Calendar, MoreVertical, RotateCcw } from 'lucide-react';
 import type { User } from '@/types';
-import { getCompanyUsers, updateUserStatus, restoreUser } from '@/api/userApi';
+import { updateUserStatus, restoreUser } from '@/api/userApi';
 
 interface CompanyUsersDialogProps {
   open: boolean;
@@ -83,7 +83,7 @@ export default function CompanyUsersDialog({
     try {
       const response = await restoreUser(userId);
       if (response.status === 'success' || response.status === true) {
-        await fetchUsers();
+        // await fetchUsers();
         toast({
           title: 'User Restored',
           description: 'User has been restored.',
@@ -104,35 +104,35 @@ export default function CompanyUsersDialog({
     }
   };
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getCompanyUsers(companyId);
-      if (response.status) {
-        setUsers(response.data || []);
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to fetch company users',
-          variant: 'destructive',
-        });
-      }
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch company users',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [companyId, toast]);
+  // const fetchUsers = useCallback(async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await getCompanyUsers(companyId);
+  //     if (response.status) {
+  //       setUsers(response.data || []);
+  //     } else {
+  //       toast({
+  //         title: 'Error',
+  //         description: 'Failed to fetch company users',
+  //         variant: 'destructive',
+  //       });
+  //     }
+  //   } catch {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Failed to fetch company users',
+  //       variant: 'destructive',
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [companyId, toast]);
 
-  useEffect(() => {
-    if (open && companyId) {
-      fetchUsers();
-    }
-  }, [open, companyId, fetchUsers]);
+  // useEffect(() => {
+  //   if (open && companyId) {
+  //     fetchUsers();
+  //   }
+  // }, [open, companyId, fetchUsers]);
 
   const filteredUsers = users.filter((user) =>
     user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||

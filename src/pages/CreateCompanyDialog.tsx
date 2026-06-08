@@ -122,8 +122,7 @@ export default function CreateCompanyDialog() {
       const companyData = {
         company_name: data.company_name,
         companyEmail: data.companyEmail,
-        logoFile: logoFile,
-        domain: "", 
+        // logoFile: logoFile,
       };
 
       await addCompany(companyData);
