@@ -32,10 +32,19 @@ export const updateProductVerificationMethod = async (
   return response.data;
 };
 
+export const registerProduct = async (payload: any): Promise<any> => {
+  const token = localStorage.getItem('token');
+  const response = await api.post('/products', payload, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return response.data;
+};
+
 export const productApi = {
   getAllProducts,
   getProductById,
   updateProductVerificationMethod,
+  registerProduct,
 };
 
 export default productApi;

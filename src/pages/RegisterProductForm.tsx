@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { productApi } from '../api/productApi';
 
 type FormState = {
   name: string;
@@ -40,26 +41,15 @@ export default function RegisterProductForm() {
     setResult(null);
 
     try {
-      const token = localStorage.getItem('token');
       const payload = {
         ...form,
         db_uri: form.architecture_type === 'MULTI_TENANT' ? null : form.db_uri,
       };
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      const data = await productApi.registerProduct(payload);
       setResult(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
