@@ -38,7 +38,7 @@ const companySchema = z.object({
 export default function CreateCompanyDialog() {
   const [open, setOpen] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [nameAvailability, setNameAvailability] = useState<{
     checking: boolean;
@@ -133,7 +133,6 @@ export default function CreateCompanyDialog() {
       });
       form.reset();
       setLogoPreview(null);
-      setLogoFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -197,13 +196,11 @@ export default function CreateCompanyDialog() {
         setLogoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      setLogoFile(file);
     }
   };
 
   const handleRemoveLogo = () => {
     setLogoPreview(null);
-    setLogoFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -255,10 +252,10 @@ export default function CreateCompanyDialog() {
                     <div
                       className={`text-sm mt-1 ${
                         nameAvailability.checking
-                          ? "text-blue-600"
+                          ? "text-primary"
                           : nameAvailability.available
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? "text-primary"
+                            : "text-destructive"
                       }`}
                     >
                       {nameAvailability.message}
@@ -297,7 +294,7 @@ export default function CreateCompanyDialog() {
                           <button
                             type="button"
                             onClick={handleRemoveLogo}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-all"
+                            className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 shadow-md hover:bg-destructive transition-all"
                             title="Remove image"
                           >
                             <X className="h-4 w-4" />

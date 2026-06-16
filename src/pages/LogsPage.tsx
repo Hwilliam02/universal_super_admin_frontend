@@ -10,7 +10,6 @@ import { AlertCircle, Download, Filter, RefreshCw, Search, X, ChevronLeft, Chevr
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import * as XLSX from 'xlsx'
-import { useNavigate } from 'react-router-dom'
 
 interface LogQuery {
   page?: number
@@ -152,8 +151,6 @@ export default function LogsPage() {
   const [pages, setPages] = useState(0)
   const [selectedLog, setSelectedLog] = useState<LogItem | null>(null)
 
-  const navigate = useNavigate();
-
   const params: LogQuery = useMemo(() => ({
     page,
     limit,
@@ -276,9 +273,9 @@ export default function LogsPage() {
 
   const getSeverityColor = (severity?: string) => {
     switch (severity) {
-      case 'high': return { variant: 'destructive' as const, className: 'bg-red-500 text-white' }
-      case 'medium': return { variant: 'default' as const, className: 'bg-yellow-500 text-white' }
-      case 'low': return { variant: 'secondary' as const, className: 'bg-green-500 text-white' }
+      case 'high': return { variant: 'destructive' as const, className: 'bg-destructive text-white' }
+      case 'medium': return { variant: 'default' as const, className: 'bg-accent text-white' }
+      case 'low': return { variant: 'secondary' as const, className: 'bg-primary text-white' }
       default: return { variant: 'outline' as const, className: '' }
     }
   }
@@ -352,23 +349,13 @@ export default function LogsPage() {
   }
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto p-4 md:p-8 max-w-[1600px]">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">System Logs</h1>
-          <p className="text-slate-600 dark:text-slate-400">Monitor and track system activities and exceptions</p>
-        </div>
-         <Button
-    variant="outline"
-    onClick={() => navigate('/dashboard')}
-    className="flex items-center gap-2 mb-2"
-  >
-    <ChevronLeft className="w-4 h-4" />
-    Back to Dashboard
-  </Button>
-
-
-        <Card className="shadow-xl border-slate-200 dark:border-slate-700">
+  <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-primary tracking-tight mb-2">System Logs</h1>
+            <p className="text-slate-500 text-sm mt-1">Monitor and track system activities and exceptions</p>
+          </div>
+        </div>        <Card className="shadow-xl border-slate-200 dark:border-slate-700">
           <CardHeader className="border-b bg-white dark:bg-slate-900">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <Tabs value={tab} onValueChange={(v) => setTab(v as 'activity' | 'exceptions')} className="w-full lg:w-auto">
@@ -528,7 +515,7 @@ export default function LogsPage() {
             )}
 
             {error && (
-              <Alert variant="destructive" className="border-red-200 dark:border-red-800">
+              <Alert variant="destructive" className="border-destructive/20 dark:border-destructive/20">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -605,7 +592,7 @@ export default function LogsPage() {
                               {(!!item.payload || !!item.previousData) && (
                                 <button
                                   type="button"
-                                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline-offset-2 hover:underline self-start font-medium transition-colors"
+                                  className="text-xs text-primary dark:text-primary/70 hover:text-primary dark:hover:text-primary/70 underline-offset-2 hover:underline self-start font-medium transition-colors"
                                   onClick={() => setSelectedLog(item)}
                                 >
                                   View details →
@@ -782,12 +769,12 @@ export default function LogsPage() {
                               return (
                                 <tr 
                                   key={key} 
-                                  className={`${changed ? 'bg-amber-50/80 dark:bg-amber-900/20' : idx % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-900'} transition-colors`}
+                                  className={`${changed ? 'bg-accent/20/80 dark:bg-accent/20' : idx % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-900'} transition-colors`}
                                 >
                                   <td className="px-4 py-2.5 align-top font-semibold text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-700">
                                     <div className="flex items-center gap-2">
                                       {changed && (
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                                        <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
                                       )}
                                       {key}
                                     </div>
@@ -811,7 +798,6 @@ export default function LogsPage() {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   )
 }

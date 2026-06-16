@@ -227,22 +227,22 @@ export default function CompanyAnalyticsPage() {
         </div>
 
         {error && (
-          <div className="mb-6 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+          <div className="mb-6 text-sm text-destructive bg-destructive/20 border border-destructive/20 rounded-lg px-4 py-2">
             {error}
           </div>
         )}
 
         {/* Stats Overview - Top Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-sm transition-all hover:shadow-md">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-primary/20 shadow-sm transition-all hover:shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center justify-between text-sm font-semibold text-blue-800">
+              <CardTitle className="flex items-center justify-between text-sm font-semibold text-primary">
                 Total Users
                 <Users className="w-5 h-5 opacity-70" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-900">
+              <div className="text-3xl font-bold text-primary">
                 {loading && !data ? '...' : data?.totalUsers ?? 0}
               </div>
             </CardContent>
@@ -262,15 +262,15 @@ export default function CompanyAnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 shadow-sm transition-all hover:shadow-md">
+          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-accent/20 shadow-sm transition-all hover:shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center justify-between text-sm font-semibold text-amber-800">
+              <CardTitle className="flex items-center justify-between text-sm font-semibold text-accent-foreground">
                 Suspended
                 <UserX2 className="w-5 h-5 opacity-70" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-amber-900">
+              <div className="text-3xl font-bold text-accent-foreground">
                 {loading && !data ? '...' : data?.suspendedUsers ?? 0}
               </div>
             </CardContent>
@@ -285,7 +285,7 @@ export default function CompanyAnalyticsPage() {
             <Card className="shadow-md border-slate-200 overflow-hidden">
               <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
                 <CardTitle className="flex items-center gap-2 text-lg font-bold text-slate-800 uppercase tracking-tight">
-                  <Settings className="w-5 h-5 text-indigo-600" />
+                  <Settings className="w-5 h-5 text-primary" />
                   Company Settings
                 </CardTitle>
                 <p className="text-sm text-slate-500 mt-1">Manage configurations for this environment</p>
@@ -293,14 +293,14 @@ export default function CompanyAnalyticsPage() {
               <CardContent className="p-0">
                 <Tabs defaultValue="general" className="w-full">
                   <TabsList className="flex w-full justify-start rounded-none border-b bg-slate-50/50 p-0 h-11">
-                    <TabsTrigger value="general" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">General</TabsTrigger>
-                    <TabsTrigger value="appearance" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Appearance</TabsTrigger>
-                    <TabsTrigger value="modules" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Modules & Limits</TabsTrigger>
+                    <TabsTrigger value="general" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">General</TabsTrigger>
+                    <TabsTrigger value="appearance" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Appearance</TabsTrigger>
+                    <TabsTrigger value="modules" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Modules & Limits</TabsTrigger>
                     {data?.delivery_type !== "willcall" && (
-                      <TabsTrigger value="supplies" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Supplies</TabsTrigger>
+                      <TabsTrigger value="supplies" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Supplies</TabsTrigger>
                     )}
-                    <TabsTrigger value="notifications" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Alerts</TabsTrigger>
-                    <TabsTrigger value="advanced" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Advanced</TabsTrigger>
+                    <TabsTrigger value="notifications" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Alerts</TabsTrigger>
+                    <TabsTrigger value="advanced" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary/20 data-[state=active]:bg-white px-4 py-2 text-xs font-bold">Advanced</TabsTrigger>
                   </TabsList>
                   
                   <div className="p-8">
@@ -310,14 +310,14 @@ export default function CompanyAnalyticsPage() {
                         <Input id="company-name" defaultValue={displayCompanyName} className="bg-slate-50/50 h-11" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-indigo-100">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-primary/20">
                           <div className="space-y-0.5">
                             <Label className="text-sm font-bold">Active Status</Label>
                             <p className="text-xs text-slate-500">Enable platform access.</p>
                           </div>
                           <Switch defaultChecked />
                         </div>
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-indigo-100">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-primary/20">
                           <div className="space-y-0.5">
                             <Label className="text-sm font-bold">Require 2FA</Label>
                             <p className="text-xs text-slate-500">Force two-factor authentication.</p>
@@ -329,14 +329,14 @@ export default function CompanyAnalyticsPage() {
 
                     <TabsContent value="appearance" className="space-y-6 mt-0">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-indigo-100">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-primary/20">
                           <div className="space-y-0.5">
                             <Label className="text-sm font-bold">Custom Logo Header</Label>
                             <p className="text-xs text-slate-500">Allow custom logo uploads.</p>
                           </div>
                           <Switch defaultChecked />
                         </div>
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-indigo-100">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 shadow-sm transition-all hover:border-primary/20">
                           <div className="space-y-0.5">
                             <Label className="text-sm font-bold">Dark Mode Enforcement</Label>
                             <p className="text-xs text-slate-500">Force dark mode for all users.</p>
@@ -348,10 +348,10 @@ export default function CompanyAnalyticsPage() {
 
                     <TabsContent value="modules" className="space-y-6 mt-0">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-blue-100 shadow-sm">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-primary/20 shadow-sm">
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <Badge className="bg-blue-100 text-blue-700 h-5 px-1.5 uppercase text-[9px] font-black hover:bg-blue-100 pointer-events-none border-none">Pro</Badge>
+                              <Badge className="bg-secondary text-primary h-5 px-1.5 uppercase text-[9px] font-black hover:bg-secondary pointer-events-none border-none">Pro</Badge>
                               <Label className="text-sm font-bold">Billing Module</Label>
                             </div>
                             <p className="text-xs text-slate-500">Enable automated invoicing.</p>
@@ -401,10 +401,10 @@ export default function CompanyAnalyticsPage() {
                             disabled={savingFeature === 'reports'}
                           />
                         </div>
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-purple-100 shadow-sm">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-primary/20 shadow-sm">
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <Badge className="bg-purple-100 text-purple-700 h-5 px-1.5 uppercase text-[9px] font-black hover:bg-purple-100 pointer-events-none border-none">Chat</Badge>
+                              <Badge className="bg-secondary text-primary h-5 px-1.5 uppercase text-[9px] font-black hover:bg-secondary pointer-events-none border-none">Chat</Badge>
                               <Label className="text-sm font-bold">Messaging Module</Label>
                             </div>
                             <p className="text-xs text-slate-500">Enable private chat and broadcast messages.</p>
@@ -418,10 +418,10 @@ export default function CompanyAnalyticsPage() {
                             disabled={savingFeature === 'messaging'}
                           />
                         </div>
-                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-indigo-100 shadow-sm">
+                        <div className="flex items-center justify-between rounded-xl border p-5 bg-slate-50/30 border-primary/20 shadow-sm">
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                              <Badge className="bg-indigo-100 text-indigo-700 h-5 px-1.5 uppercase text-[9px] font-black hover:bg-indigo-100 pointer-events-none border-none">Teams</Badge>
+                              <Badge className="bg-secondary text-primary h-5 px-1.5 uppercase text-[9px] font-black hover:bg-secondary pointer-events-none border-none">Teams</Badge>
                               <Label className="text-sm font-bold">Teams Module</Label>
                             </div>
                             <p className="text-xs text-slate-500">Manage multiple dispatch teams.</p>
@@ -552,10 +552,10 @@ export default function CompanyAnalyticsPage() {
                           </div>
                           <Switch defaultChecked />
                         </div>
-                        <div className="flex items-center justify-between rounded-xl border border-red-100 p-5 bg-red-50/30 shadow-sm">
+                        <div className="flex items-center justify-between rounded-xl border border-destructive/20 p-5 bg-destructive/20/30 shadow-sm">
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-bold text-red-700">Strict Data Residency</Label>
-                            <p className="text-xs text-red-600">Enforce local data processing.</p>
+                            <Label className="text-sm font-bold text-destructive">Strict Data Residency</Label>
+                            <p className="text-xs text-destructive">Enforce local data processing.</p>
                           </div>
                           <Switch />
                         </div>
@@ -584,7 +584,7 @@ export default function CompanyAnalyticsPage() {
             <Card className="shadow-md border-slate-200 overflow-hidden">
               <CardHeader className="bg-slate-50 border-b border-slate-100 py-4 px-5">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800 uppercase tracking-tight">
-                  <Activity className="w-4 h-4 text-indigo-600" />
+                  <Activity className="w-4 h-4 text-primary" />
                   Last Activity
                 </CardTitle>
               </CardHeader>
@@ -597,7 +597,7 @@ export default function CompanyAnalyticsPage() {
                   <div className="space-y-3 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500 font-medium">Action</span>
-                      <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border border-indigo-100 font-bold px-2 py-0 h-5">
+                      <Badge className="bg-secondary text-primary hover:bg-secondary border border-primary/20 font-bold px-2 py-0 h-5">
                         {data.lastActivity.action || 'N/A'}
                       </Badge>
                     </div>
@@ -632,7 +632,7 @@ export default function CompanyAnalyticsPage() {
             <Card className="shadow-md border-slate-200 overflow-hidden">
               <CardHeader className="bg-slate-50 border-b border-slate-100 py-4 px-5">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800 uppercase tracking-tight">
-                  <Users className="w-4 h-4 text-indigo-600" />
+                  <Users className="w-4 h-4 text-primary" />
                   Last 5 Logins
                 </CardTitle>
               </CardHeader>
@@ -646,7 +646,7 @@ export default function CompanyAnalyticsPage() {
                     {data.lastLogins.map((login) => (
                       <div
                         key={login.userId + (login.createdAt || '')}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-all border border-slate-100 hover:border-indigo-100 shadow-sm"
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-all border border-slate-100 hover:border-primary/20 shadow-sm"
                       >
                         <div className="flex flex-col min-w-0">
                           <span className="font-bold text-slate-800 text-[11px] truncate" title={login.userEmail}>
@@ -654,7 +654,7 @@ export default function CompanyAnalyticsPage() {
                           </span>
                           <span className="text-[10px] text-slate-500 mt-0.5 font-medium">{formatDateTime(login.createdAt)}</span>
                         </div>
-                        <Badge variant="outline" className="text-[9px] uppercase tracking-tighter font-black bg-white border-slate-200 text-indigo-600 px-1 h-4">
+                        <Badge variant="outline" className="text-[9px] uppercase tracking-tighter font-black bg-white border-slate-200 text-primary px-1 h-4">
                           Login
                         </Badge>
                       </div>

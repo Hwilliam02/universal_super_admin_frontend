@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
     Activity, 
     Cpu, 
@@ -9,7 +8,6 @@ import {
     Zap, 
     Search, 
     RefreshCw, 
-    ArrowLeft,
     HardDrive,
     ShieldAlert,
     User,
@@ -34,7 +32,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 export default function SystemMonitorPage() {
-    const navigate = useNavigate();
     const { toast } = useToast();
     const [loading, setLoading] = useState(true);
     const [liveData, setLiveData] = useState<any>(null);
@@ -84,63 +81,55 @@ export default function SystemMonitorPage() {
 
     const getStatusColor = (percent: string) => {
         const val = parseFloat(percent);
-        if (val > 80) return 'text-red-500 bg-red-50 border-red-200';
-        if (val > 50) return 'text-yellow-500 bg-yellow-50 border-yellow-200';
-        return 'text-green-500 bg-green-50 border-green-200';
+        if (val > 80) return 'text-destructive bg-destructive/20 border-destructive/20';
+        if (val > 50) return 'text-accent-foreground bg-accent/20 border-accent/20';
+        return 'text-primary bg-secondary border-primary/20';
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6">
+        <div className="space-y-6">
             {/* Header */}
-            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => navigate(-1)}
-                        className="rounded-full bg-white shadow-sm"
-                    >
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
                     <div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                            <ShieldAlert className="h-8 w-8 text-indigo-600" />
+                        <h1 className="text-2xl font-bold text-primary tracking-tight flex items-center gap-2">
+                            <ShieldAlert className="h-6 w-6 text-primary" />
                             System Health Monitor
                         </h1>
-                        <p className="text-slate-500 mt-1 flex items-center gap-2">
+                        <p className="text-slate-500 text-sm mt-1 flex items-center gap-2">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                             </span>
                             Real-time infrastructure observability (Port 5000)
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200 hidden sm:block">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Uptime</p>
-                        <p className="text-sm font-bold text-indigo-600">{liveData?.totalUptime || 'Determining...'}</p>
+                    <div className="bg-white px-4 py-2 rounded-md shadow-sm border border-gray-200 hidden sm:block">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Uptime</p>
+                        <p className="text-sm font-bold text-primary">{liveData?.totalUptime || 'Determining...'}</p>
                     </div>
                     <Button 
                         onClick={() => setRefreshTime(Date.now())}
                         disabled={loading}
-                        className="bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 shadow-lg text-white gap-2 h-11 px-6 rounded-xl"
+                        className="bg-primary hover:bg-primary/90 text-white gap-2 h-10 px-4 rounded-md"
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                         Refresh Now
                     </Button>
                 </div>
-            </header>
+            </div>
 
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* CPU Card */}
                 <Card className="border-0 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500" />
+                    <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
                     <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-sm font-bold text-slate-400 uppercase">CPU Usage</CardTitle>
-                            <Cpu className="h-5 w-5 text-indigo-500" />
+                            <Cpu className="h-5 w-5 text-primary" />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -153,14 +142,14 @@ export default function SystemMonitorPage() {
                             </div>
                             <div className="text-right">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase leading-none">Load Avg</p>
-                                <p className="text-sm font-black text-indigo-600">
+                                <p className="text-sm font-black text-primary">
                                     {liveData?.system?.cpu?.loadAvg?.[0]?.toFixed(2) || '0.00'}
                                 </p>
                             </div>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-2">
                             <div 
-                                className="bg-indigo-500 h-2 rounded-full transition-all duration-1000" 
+                                className="bg-primary h-2 rounded-full transition-all duration-1000" 
                                 style={{ width: liveData?.system?.cpu?.usagePercent || '0%' }}
                             />
                         </div>
@@ -203,11 +192,11 @@ export default function SystemMonitorPage() {
 
                 {/* Event Loop Card */}
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+                    <div className="absolute top-0 left-0 w-1 h-full bg-accent" />
                     <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-sm font-bold text-slate-400 uppercase">API Responsiveness</CardTitle>
-                            <Zap className="h-5 w-5 text-amber-500" />
+                            <Zap className="h-5 w-5 text-accent-foreground" />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -222,29 +211,29 @@ export default function SystemMonitorPage() {
                                 <div key={i} className={`h-1 flex-1 rounded-full ${i < 8 ? 'bg-emerald-400' : 'bg-slate-200'}`} />
                             ))}
                         </div>
-                        <p className="text-xs text-slate-500 mt-2 font-medium">Active Requests: <span className="text-amber-600 font-bold">{liveData?.activeCount || 0}</span></p>
+                        <p className="text-xs text-slate-500 mt-2 font-medium">Active Requests: <span className="text-accent-foreground font-bold">{liveData?.activeCount || 0}</span></p>
                     </CardContent>
                 </Card>
 
                 {/* Errors Card */}
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
+                    <div className="absolute top-0 left-0 w-1 h-full bg-destructive" />
                     <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-sm font-bold text-slate-400 uppercase">Issues Found</CardTitle>
-                            <AlertTriangle className="h-5 w-5 text-rose-500" />
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
                         </div>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2">
-                            <h2 className="text-3xl font-black text-rose-600">
+                            <h2 className="text-3xl font-black text-destructive">
                                 {liveData?.recentErrorsCount || 0}
                             </h2>
                             <span className="text-slate-400 text-sm font-medium">Recent Errs</span>
                         </div>
-                        <div className="mt-4 w-full bg-rose-50 rounded-lg p-2 border border-rose-100">
-                             <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest leading-none">Status</p>
-                             <p className="text-sm font-bold text-rose-700 leading-tight">
+                        <div className="mt-4 w-full bg-destructive/20 rounded-lg p-2 border border-destructive/20">
+                             <p className="text-[10px] text-destructive font-bold uppercase tracking-widest leading-none">Status</p>
+                             <p className="text-sm font-bold text-destructive leading-tight">
                                 {liveData?.recentErrorsCount > 0 ? 'Requires Investigation' : 'System Stable'}
                              </p>
                         </div>
@@ -254,11 +243,11 @@ export default function SystemMonitorPage() {
 
                 {/* Sockets Card */}
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500" />
+                    <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
                     <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-sm font-bold text-slate-400 uppercase">Socket Status</CardTitle>
-                            <Share2 className="h-5 w-5 text-cyan-500" />
+                            <Share2 className="h-5 w-5 text-primary" />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -270,11 +259,11 @@ export default function SystemMonitorPage() {
                         </div>
                         <div className="mt-4 w-full bg-slate-100 rounded-full h-2">
                             <div 
-                                className="bg-cyan-500 h-2 rounded-full transition-all duration-1000" 
+                                className="bg-primary h-2 rounded-full transition-all duration-1000" 
                                 style={{ width: `${Math.min((liveData?.sockets?.connectedClients || 0) * 5, 100)}%` }}
                             />
                         </div>
-                        <p className="text-xs text-slate-500 mt-2 font-medium">Auth Users: <span className="text-cyan-600 font-bold">{liveData?.sockets?.userMapSize || 0}</span></p>
+                        <p className="text-xs text-slate-500 mt-2 font-medium">Auth Users: <span className="text-primary font-bold">{liveData?.sockets?.userMapSize || 0}</span></p>
                     </CardContent>
                 </Card>
             </div>
@@ -282,22 +271,22 @@ export default function SystemMonitorPage() {
             {/* Main Tabs */}
             <Tabs defaultValue="requests" className="w-full">
                 <TabsList className="bg-slate-200/50 p-1 mb-6 rounded-2xl w-full sm:w-auto h-auto flex flex-wrap">
-                    <TabsTrigger value="requests" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 font-bold text-sm">
+                    <TabsTrigger value="requests" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary font-bold text-sm">
                         <Globe className="h-4 w-4 mr-2" /> Live Requests
                     </TabsTrigger>
-                    <TabsTrigger value="slow" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-amber-600 font-bold text-sm">
+                    <TabsTrigger value="slow" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-accent-foreground font-bold text-sm">
                          <Clock className="h-4 w-4 mr-2" /> Slow APIs
                     </TabsTrigger>
                     <TabsTrigger value="db" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-600 font-bold text-sm">
                          <Database className="h-4 w-4 mr-2" /> Database Load
                     </TabsTrigger>
-                    <TabsTrigger value="errors" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-rose-600 font-bold text-sm">
+                    <TabsTrigger value="errors" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-destructive font-bold text-sm">
                          <ShieldAlert className="h-4 w-4 mr-2" /> Error Logs
                     </TabsTrigger>
-                    <TabsTrigger value="history" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 font-bold text-sm">
+                    <TabsTrigger value="history" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary font-bold text-sm">
                          <Activity className="h-4 w-4 mr-2" /> Stat History
                     </TabsTrigger>
-                    <TabsTrigger value="sockets" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-cyan-600 font-bold text-sm">
+                    <TabsTrigger value="sockets" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary font-bold text-sm">
                          <Share2 className="h-4 w-4 mr-2" /> Socket Stats
                     </TabsTrigger>
                 </TabsList>
@@ -330,13 +319,13 @@ export default function SystemMonitorPage() {
                                             liveData.activeRequests.map((req: any, i: number) => (
                                                 <TableRow key={i} className="hover:bg-slate-50 transition-colors">
                                                     <TableCell>
-                                                        <Badge variant="outline" className={`font-black ${req.method === 'POST' ? 'text-indigo-600 border-indigo-200 bg-indigo-50' : req.method === 'GET' ? 'text-emerald-600 border-emerald-200 bg-emerald-50' : 'text-slate-600'}`}>
+                                                        <Badge variant="outline" className={`font-black ${req.method === 'POST' ? 'text-primary border-primary/20 bg-secondary' : req.method === 'GET' ? 'text-emerald-600 border-emerald-200 bg-emerald-50' : 'text-slate-600'}`}>
                                                             {req.method}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="font-mono text-xs font-bold text-slate-600">{req.url}</TableCell>
                                                     <TableCell>
-                                                        <span className={`font-bold ${parseInt(req.elapsed) > 2000 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                                        <span className={`font-bold ${parseInt(req.elapsed) > 2000 ? 'text-accent-foreground' : 'text-emerald-500'}`}>
                                                             {req.elapsed}
                                                         </span>
                                                     </TableCell>
@@ -405,7 +394,7 @@ export default function SystemMonitorPage() {
                                                     </TableCell>
                                                     <TableCell className="font-mono text-xs font-bold text-slate-600 max-w-[300px] truncate">{log.url}</TableCell>
                                                     <TableCell>
-                                                        <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-200 border-rose-200 font-black">
+                                                        <Badge className="bg-destructive text-destructive hover:bg-destructive border-destructive/20 font-black">
                                                             {(log.duration / 1000).toFixed(1)}s
                                                         </Badge>
                                                     </TableCell>
@@ -456,7 +445,7 @@ export default function SystemMonitorPage() {
                                                             {proc.Command}
                                                         </Badge>
                                                     </TableCell>
-                                                    <TableCell className="font-bold text-amber-600">{proc.Time}s</TableCell>
+                                                    <TableCell className="font-bold text-accent-foreground">{proc.Time}s</TableCell>
                                                     <TableCell className="text-xs font-medium text-slate-500">{proc.State || 'N/A'}</TableCell>
                                                     <TableCell className="font-mono text-[10px] break-all max-h-20 overflow-y-auto block p-2">
                                                         {proc.Info || '---'}
@@ -497,7 +486,7 @@ export default function SystemMonitorPage() {
                                             </TableRow>
                                         ) : (
                                             errors.map((err: any, i: number) => (
-                                                <TableRow key={i} className="hover:bg-rose-50 transition-colors border-l-2 border-l-transparent hover:border-l-rose-500">
+                                                <TableRow key={i} className="hover:bg-destructive/20 transition-colors border-l-2 border-l-transparent hover:border-l-rose-500">
                                                     <TableCell className="whitespace-nowrap text-xs text-slate-500">
                                                         {new Date(err.createdAt).toLocaleString()}
                                                     </TableCell>
@@ -513,7 +502,7 @@ export default function SystemMonitorPage() {
                                                         </p>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        <Badge className="bg-rose-100 text-rose-600 font-bold uppercase text-[10px]">
+                                                        <Badge className="bg-destructive text-destructive font-bold uppercase text-[10px]">
                                                             {err.severity || 'high'}
                                                         </Badge>
                                                     </TableCell>
@@ -590,21 +579,21 @@ export default function SystemMonitorPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                                <div className="p-4 rounded-xl bg-cyan-50 border border-cyan-100">
-                                    <h3 className="text-[10px] font-bold text-cyan-700 uppercase mb-1">Raw Connections</h3>
-                                    <p className="text-xl font-black text-cyan-900">{liveData?.sockets?.connectedClients || 0}</p>
+                                <div className="p-4 rounded-xl bg-secondary border border-primary/20">
+                                    <h3 className="text-[10px] font-bold text-primary uppercase mb-1">Raw Connections</h3>
+                                    <p className="text-xl font-black text-primary">{liveData?.sockets?.connectedClients || 0}</p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100">
-                                    <h3 className="text-[10px] font-bold text-indigo-700 uppercase mb-1">Auth Users</h3>
-                                    <p className="text-xl font-black text-indigo-900">{liveData?.sockets?.userMapSize || 0}</p>
+                                <div className="p-4 rounded-xl bg-secondary border border-primary/20">
+                                    <h3 className="text-[10px] font-bold text-primary uppercase mb-1">Auth Users</h3>
+                                    <p className="text-xl font-black text-primary">{liveData?.sockets?.userMapSize || 0}</p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
                                     <h3 className="text-[10px] font-bold text-emerald-700 uppercase mb-1">Uptime</h3>
                                     <p className="text-xl font-black text-emerald-900">{liveData?.sockets?.uptime || '0s'}</p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
-                                    <h3 className="text-[10px] font-bold text-amber-700 uppercase mb-1">Last Activity</h3>
-                                    <p className="text-xl font-black text-amber-900">{liveData?.sockets?.lastEvent || 'N/A'}</p>
+                                <div className="p-4 rounded-xl bg-accent/20 border border-accent/20">
+                                    <h3 className="text-[10px] font-bold text-accent-foreground uppercase mb-1">Last Activity</h3>
+                                    <p className="text-xl font-black text-accent-foreground">{liveData?.sockets?.lastEvent || 'N/A'}</p>
                                 </div>
                             </div>
 
@@ -612,15 +601,15 @@ export default function SystemMonitorPage() {
                                 <Card className="border border-slate-100 shadow-none bg-slate-50/50">
                                     <CardHeader className="py-3">
                                         <CardTitle className="text-sm flex items-center gap-2">
-                                            <Radio className="h-4 w-4 text-indigo-500" />
+                                            <Radio className="h-4 w-4 text-primary" />
                                             Traffic Monitor
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-indigo-100 rounded-lg">
-                                                    <Send className="h-4 w-4 text-indigo-600" />
+                                                <div className="p-2 bg-secondary rounded-lg">
+                                                    <Send className="h-4 w-4 text-primary" />
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-bold text-slate-500">Outgoing</p>
@@ -644,7 +633,7 @@ export default function SystemMonitorPage() {
                                             </div>
                                             <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden flex">
                                                 <div 
-                                                    className="bg-indigo-500 h-full" 
+                                                    className="bg-primary h-full" 
                                                     style={{ 
                                                         width: `${((liveData?.sockets?.messagesSent || 0) / ((liveData?.sockets?.messagesSent || 1) + (liveData?.sockets?.messagesReceived || 0))) * 100}%` 
                                                     }}
@@ -682,9 +671,9 @@ export default function SystemMonitorPage() {
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 pt-2">
-                                            <div className="bg-rose-50 p-2 rounded-lg border border-rose-100">
-                                                <p className="text-[10px] font-bold text-rose-500 uppercase">Errors</p>
-                                                <p className="text-lg font-black text-rose-700">{liveData?.sockets?.handshakeErrors || 0}</p>
+                                            <div className="bg-destructive/20 p-2 rounded-lg border border-destructive/20">
+                                                <p className="text-[10px] font-bold text-destructive uppercase">Errors</p>
+                                                <p className="text-lg font-black text-destructive">{liveData?.sockets?.handshakeErrors || 0}</p>
                                             </div>
                                             <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                                                 <p className="text-[10px] font-bold text-slate-500 uppercase">Avg Ping</p>
@@ -730,14 +719,14 @@ export default function SystemMonitorPage() {
                                                             </TableCell>
                                                             <TableCell className="text-xs text-slate-600 font-medium">{sock.duration}</TableCell>
                                                             <TableCell>
-                                                                <span className={`text-xs font-bold ${parseInt(sock.idleTime) > 60 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                                                <span className={`text-xs font-bold ${parseInt(sock.idleTime) > 60 ? 'text-accent-foreground' : 'text-emerald-500'}`}>
                                                                     {sock.idleTime}
                                                                 </span>
                                                             </TableCell>
                                                             <TableCell className="text-[10px] text-slate-400 font-mono italic">{sock.address}</TableCell>
                                                             <TableCell className="text-right">
                                                                 {sock.isHanging ? (
-                                                                    <Badge className="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100 text-[10px] font-black">
+                                                                    <Badge className="bg-destructive/20 text-destructive border-destructive/20 hover:bg-destructive text-[10px] font-black">
                                                                         HANGING
                                                                     </Badge>
                                                                 ) : (

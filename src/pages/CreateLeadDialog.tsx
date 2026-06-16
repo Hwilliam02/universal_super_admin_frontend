@@ -202,12 +202,12 @@ export default function CreateLeadDialog() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-blue-600 font-semibold">
+                    <FormLabel className="flex items-center gap-2 text-primary font-semibold">
                       <Mail className="h-4 w-4" />
                       Work Email *
                     </FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="contact@acme.com" {...field} className="h-10 border-blue-200 focus:border-blue-500" />
+                      <Input type="email" placeholder="contact@acme.com" {...field} className="h-10 border-primary/20 focus:border-primary/20" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -426,7 +426,7 @@ export default function CreateLeadDialog() {
                           <button
                             type="button"
                             onClick={handleRemoveLogo}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-all"
+                            className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 shadow-md hover:bg-destructive transition-all"
                             title="Remove image"
                           >
                             <X className="h-4 w-4" />

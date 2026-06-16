@@ -1,8 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
 import { useCompanyStore } from "@/store/companyStore";
-// import {  resendCompanyRegistration } from '@/api/companyApi';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,26 +27,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getAllProducts, updateProductVerificationMethod } from "@/api/productApi";
+import { updateProductVerificationMethod, getAllProducts } from "@/api/productApi";
 import type { Product } from "@/types";
 import CompanyUsersDialog from "@/components/CompanyUsersDialog";
 import CreateCompanyDialog from "./CreateCompanyDialog";
 import { useToast } from "@/hooks/use-toast";
 import {
-  LogOut,
   Search,
   Building2,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   Users,
-  Calendar,
-  RotateCcw,
-  Mail,
-  Shield,
-  Link2,
   Hash,
   Settings,
+  Link2,
+  Shield,
+  XCircle,
+  Calendar,
+  Mail,
+  RotateCcw,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -66,7 +63,6 @@ import { resendCompanyRegistration, getGlobalUsers, updateGlobalUserStatus } fro
 export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, logout } = useAuthStore();
   const {
     companies,
     updateCompanyStatus,
@@ -74,10 +70,9 @@ export default function Dashboard() {
     undeleteCompany,
     fetchCompanies,
   } = useCompanyStore();
-  const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<string>("all");
-  const [productsLoading, setProductsLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState<{
     type: "status" | "delete" | "undelete";
     id: string;
@@ -121,33 +116,12 @@ export default function Dashboard() {
 
   const fetchProducts = async () => {
     try {
-      setProductsLoading(true);
       const res = await getAllProducts();
       if ((res.status === "success" || res.status === true) && res.data) {
         setProducts(res.data);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-    } finally {
-      setProductsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
-        variant: "success",
-      });
-      navigate("/login");
-    } catch {
-      toast({
-        title: "Logout Error",
-        description: "There was an issue logging out. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -159,8 +133,6 @@ export default function Dashboard() {
   const { mainCompanies, suspendedCompanies } = useMemo(() => {
     const q = (searchQuery || "").trim().toLowerCase();
     const searchedCompanies = companies.filter((company) => {
-      // 1: Search Query Filter
-      const q = (searchQuery || "").trim().toLowerCase();
       const name = company.name?.toLowerCase() || "";
       const domain = company.domain?.toLowerCase() || "";
       const adminFirst = company.admin?.first_name?.toLowerCase() || "";
@@ -174,8 +146,8 @@ export default function Dashboard() {
         adminEmail.includes(q);
 
       // 2: Product Filter
-      const companyProductId = company.productId || (company as any).product_id;
-      const matchesProduct = selectedProductId === "all" || String(companyProductId) === String(selectedProductId);
+      const companyProductIds = company.productIds || [];
+      const matchesProduct = selectedProductId === "all" || companyProductIds.some((id: string) => String(id) === String(selectedProductId));
 
       return matchesSearch && matchesProduct;
     });
@@ -318,8 +290,8 @@ export default function Dashboard() {
       const res = await updateProductVerificationMethod(productId, method);
       if (res.status === "success" || res.status === true) {
         // Update local state
-        setProducts((prev) =>
-          prev.map((p) =>
+        setProducts((prev: Product[]) =>
+          prev.map((p: Product) =>
             p._id === productId ? { ...p, verification_method: method } : p
           )
         );
@@ -339,135 +311,106 @@ export default function Dashboard() {
   };
 
   const filteredGlobalUsers = useMemo(() => {
-    const q = userSearchQuery.toLowerCase().trim();
-    return globalUsers.filter(u => 
-      u.email.toLowerCase().includes(q) || 
-      u.username?.toLowerCase().includes(q) ||
-      u.global_user_id.toLowerCase().includes(q)
-    );
+    const q_ = (userSearchQuery || "").trim().toLowerCase();
+    return globalUsers.filter((user) => {
+      const email = user.email?.toLowerCase() || "";
+      const username = user.username?.toLowerCase() || "";
+      const id = user.global_user_id?.toLowerCase() || "";
+      return (
+        email.includes(q_) ||
+        username.includes(q_) ||
+        id.includes(q_)
+      );
+    });
   }, [globalUsers, userSearchQuery]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-2xl sticky top-0 z-10">
-        <div className="max-w-8/xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="bg-white/30 backdrop-blur-md p-3 rounded-2xl shadow-xl border-2 border-white/40">
-                <Building2 className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-extrabold text-white drop-shadow-lg tracking-tight">
-                  Dashboard
-                </h1>
-                <p className="text-blue-50 mt-1.5 flex items-center gap-2 text-sm font-medium">
-                  <Users className="h-4 w-4" />
-                  Welcome back,{" "}
-                  <span className="font-bold text-white">
-                    {user?.first_name
-                      ? `${user.first_name} ${user.last_name}`
-                      : "Admin"}
-                  </span>
-                </p>
-              </div>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-primary tracking-tight">
+            Companies Overview
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Manage your companies, global users, and product integrations.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Cards - Redesigned for Data Density */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="rounded-md border-gray-200 shadow-sm">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Active Companies
+              </p>
+              <h3 className="text-2xl font-bold text-primary">
+                {companies.filter((c) => c.status === "active").length}
+              </h3>
             </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="gap-2 bg-white text-red-600 border-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-all shadow-lg font-semibold"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+            <div className="bg-primary/10 p-2 rounded-md">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Main Content */}
-      <main className="max-w-full mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 border-2 border-green-300 hover:shadow-xl hover:scale-105 transition-all duration-300">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
-                    Active Companies
-                  </p>
-                  <h3 className="text-4xl font-extrabold text-green-700">
-                    {companies.filter((c) => c.status === "active").length}
-                  </h3>
-                </div>
-                <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-lg">
-                  <CheckCircle2 className="h-7 w-7 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="rounded-md border-gray-200 shadow-sm">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Suspended Companies
+              </p>
+              <h3 className="text-2xl font-bold text-accent">
+                {companies.filter((c) => c.status === "suspended").length}
+              </h3>
+            </div>
+            <div className="bg-accent/10 p-2 rounded-md">
+              <AlertCircle className="h-5 w-5 text-accent" />
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 border-2 border-yellow-300 hover:shadow-xl hover:scale-105 transition-all duration-300">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-yellow-600 uppercase tracking-wider mb-2">
-                    Suspended Companies
-                  </p>
-                  <h3 className="text-4xl font-extrabold text-yellow-700">
-                    {companies.filter((c) => c.status === "suspended").length}
-                  </h3>
-                </div>
-                <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-3 rounded-xl shadow-lg">
-                  <AlertCircle className="h-7 w-7 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="rounded-md border-gray-200 shadow-sm">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Global Users
+              </p>
+              <h3 className="text-2xl font-bold text-primary">
+                {globalUsers.length}
+              </h3>
+            </div>
+            <div className="bg-primary/10 p-2 rounded-md">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 border-2 border-purple-300 hover:shadow-xl hover:scale-105 transition-all duration-300">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2">
-                    Global Users
-                  </p>
-                  <h3 className="text-4xl font-extrabold text-purple-700">
-                    {globalUsers.length}
-                  </h3>
-                </div>
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-lg">
-                  <Users className="h-7 w-7 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 border-2 border-blue-300 hover:shadow-xl hover:scale-105 transition-all duration-300">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
-                    Registered Products
-                  </p>
-                  <h3 className="text-4xl font-extrabold text-blue-700">
-                    {products.length}
-                  </h3>
-                </div>
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-lg">
-                  <Building2 className="h-7 w-7 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="rounded-md border-gray-200 shadow-sm">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Registered Products
+              </p>
+              <h3 className="text-2xl font-bold text-primary">
+                {products.length}
+              </h3>
+            </div>
+            <div className="bg-primary/10 p-2 rounded-md">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
         <Tabs defaultValue="companies" className="w-full">
           <TabsList className="grid w-full sm:w-[480px] grid-cols-2 mb-8 bg-white/50 backdrop-blur-sm p-1 rounded-xl border-2 border-white/60 shadow-lg h-12">
-            <TabsTrigger value="companies" className="rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all font-bold flex items-center gap-2">
+            <TabsTrigger value="companies" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               Companies Management
             </TabsTrigger>
-            <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all font-bold flex items-center gap-2">
+            <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all font-bold flex items-center gap-2">
               <Users className="h-4 w-4" />
               Global Users Management
             </TabsTrigger>
@@ -480,7 +423,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <CardTitle className="text-2xl flex items-center gap-2">
-                  <Building2 className="h-6 w-6 text-blue-600" />
+                  <Building2 className="h-6 w-6 text-primary" />
                   Companies Management
                 </CardTitle>
                 <CardDescription className="mt-1">
@@ -514,7 +457,7 @@ export default function Dashboard() {
                     {products.map((product) => (
                       <SelectItem key={product.product_id} value={product.product_id}>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          <div className="w-2 h-2 rounded-full bg-primary" />
                           <span>{product.name}</span>
                         </div>
                       </SelectItem>
@@ -529,17 +472,17 @@ export default function Dashboard() {
                   placeholder="Search companies, domains, or admins..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all shadow-sm"
+                  className="pl-12 h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all shadow-sm"
                 />
               </div>
             </div>
 
             {/* Product Verification Settings */}
             {products.length > 0 && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl">
+              <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border border-primary/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
-                  <Settings className="h-4 w-4 text-indigo-600" />
-                  <span className="font-semibold text-sm text-indigo-900">User Verification Settings</span>
+                  <Settings className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm text-primary">User Verification Settings</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {products.map((product) => (
@@ -559,7 +502,7 @@ export default function Dashboard() {
                           }
                           className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
                             (product.verification_method || 'code') === 'code'
-                              ? 'bg-indigo-600 text-white shadow-sm'
+                              ? 'bg-primary text-white shadow-sm'
                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                           }`}
                         >
@@ -572,7 +515,7 @@ export default function Dashboard() {
                           }
                           className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
                             product.verification_method === 'link'
-                              ? 'bg-indigo-600 text-white shadow-sm'
+                              ? 'bg-primary text-white shadow-sm'
                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                           }`}
                         >
@@ -656,7 +599,7 @@ export default function Dashboard() {
                         mainCompanies.map((company) => (
                           <TableRow
                             key={company._id}
-                            className={`hover:bg-blue-50/50 transition-colors ${company.status === "deleted" ? "opacity-50 bg-gray-100" : ""}`}
+                            className={`hover:bg-secondary/50 transition-colors ${company.status === "deleted" ? "opacity-50 bg-gray-100" : ""}`}
                           >
                             <TableCell className="text-center">
                               {company.logoUrl ? (
@@ -672,7 +615,7 @@ export default function Dashboard() {
                               )}
                             </TableCell>
                             <TableCell
-                              className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+                              className="font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
                               onClick={() =>
                                 handleCompanyClick(company._id, company.name)
                               }
@@ -680,7 +623,7 @@ export default function Dashboard() {
                               <div className="flex items-center gap-2">
                                 <span>{company.name}</span>
                                 {company.is_trial && (
-                                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 text-[10px] uppercase font-bold py-0 h-5">
+                                  <Badge className="bg-secondary text-primary hover:bg-secondary border border-primary/20 text-[10px] uppercase font-bold py-0 h-5">
                                     Free Trial
                                   </Badge>
                                 )}
@@ -702,7 +645,7 @@ export default function Dashboard() {
                                   company.productIds.map(pid => {
                                     const productName = products.find(p => p.product_id === pid)?.name || pid;
                                     return (
-                                      <Badge key={pid} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] py-0">
+                                      <Badge key={pid} variant="outline" className="bg-secondary text-primary border-primary/20 text-[10px] py-0">
                                         {productName}
                                       </Badge>
                                     );
@@ -757,7 +700,7 @@ export default function Dashboard() {
                                           company.name,
                                         )
                                       }
-                                      className="h-8 px-3 bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+                                      className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                       title="Send Verification Code"
                                     >
                                       <Mail className="h-3.5 w-3.5" />
@@ -771,7 +714,7 @@ export default function Dashboard() {
                                     onClick={() =>
                                       handleUndelete(company._id, company.name)
                                     }
-                                    className="h-8 px-3 bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+                                    className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                     title="Restore Company"
                                   >
                                     <RotateCcw className="h-3.5 w-3.5 mr-1" />
@@ -789,7 +732,7 @@ export default function Dashboard() {
                                             "active",
                                           )
                                         }
-                                        className="h-8 px-3 bg-green-50 text-green-700 border-green-300 hover:bg-green-100 hover:text-green-800 transition-colors"
+                                        className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                         title="Set as Active"
                                       >
                                         <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
@@ -806,7 +749,7 @@ export default function Dashboard() {
                                             "suspended",
                                           )
                                         }
-                                        className="h-8 px-3 bg-yellow-50 text-yellow-700 border-yellow-300 hover:bg-yellow-100 hover:text-yellow-800 transition-colors"
+                                        className="h-8 px-3 bg-accent/20 text-accent-foreground border-accent/20 hover:bg-accent hover:text-accent-foreground transition-colors"
                                         title="Suspend"
                                       >
                                         <AlertCircle className="h-3.5 w-3.5 mr-1" />
@@ -872,7 +815,7 @@ export default function Dashboard() {
                         suspendedCompanies.map((company) => (
                           <TableRow
                             key={company._id}
-                            className={`hover:bg-blue-50/50 transition-colors ${company.status === "deleted" ? "opacity-50 bg-gray-100" : ""}`}
+                            className={`hover:bg-secondary/50 transition-colors ${company.status === "deleted" ? "opacity-50 bg-gray-100" : ""}`}
                           >
                             <TableCell className="text-center">
                               {company.logoUrl ? (
@@ -888,7 +831,7 @@ export default function Dashboard() {
                               )}
                             </TableCell>
                             <TableCell
-                              className="font-semibold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+                              className="font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
                               onClick={() =>
                                 handleCompanyClick(company._id, company.name)
                               }
@@ -896,7 +839,7 @@ export default function Dashboard() {
                               <div className="flex items-center gap-2">
                                 <span>{company.name}</span>
                                 {company.is_trial && (
-                                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 text-[10px] uppercase font-bold py-0 h-5">
+                                  <Badge className="bg-secondary text-primary hover:bg-secondary border border-primary/20 text-[10px] uppercase font-bold py-0 h-5">
                                     Free Trial
                                   </Badge>
                                 )}
@@ -918,7 +861,7 @@ export default function Dashboard() {
                                   company.productIds.map(pid => {
                                     const productName = products.find(p => p.product_id === pid)?.name || pid;
                                     return (
-                                      <Badge key={pid} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] py-0">
+                                      <Badge key={pid} variant="outline" className="bg-secondary text-primary border-primary/20 text-[10px] py-0">
                                         {productName}
                                       </Badge>
                                     );
@@ -973,7 +916,7 @@ export default function Dashboard() {
                                           company.name,
                                         )
                                       }
-                                      className="h-8 px-3 bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+                                      className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                       title="Send Verification Code"
                                     >
                                       <Mail className="h-3.5 w-3.5" />
@@ -987,7 +930,7 @@ export default function Dashboard() {
                                     onClick={() =>
                                       handleUndelete(company._id, company.name)
                                     }
-                                    className="h-8 px-3 bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+                                    className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                     title="Restore Company"
                                   >
                                     <RotateCcw className="h-3.5 w-3.5 mr-1" />
@@ -1005,7 +948,7 @@ export default function Dashboard() {
                                             "active",
                                           )
                                         }
-                                        className="h-8 px-3 bg-green-50 text-green-700 border-green-300 hover:bg-green-100 hover:text-green-800 transition-colors"
+                                        className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                                         title="Set as Active"
                                       >
                                         <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
@@ -1022,7 +965,7 @@ export default function Dashboard() {
                                             "suspended",
                                           )
                                         }
-                                        className="h-8 px-3 bg-yellow-50 text-yellow-700 border-yellow-300 hover:bg-yellow-100 hover:text-yellow-800 transition-colors"
+                                        className="h-8 px-3 bg-accent/20 text-accent-foreground border-accent/20 hover:bg-accent hover:text-accent-foreground transition-colors"
                                         title="Suspend"
                                       >
                                         <AlertCircle className="h-3.5 w-3.5 mr-1" />
@@ -1051,7 +994,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <CardTitle className="text-2xl flex items-center gap-2">
-                  <Users className="h-6 w-6 text-purple-600" />
+                  <Users className="h-6 w-6 text-primary" />
                   Global Users Management
                 </CardTitle>
                 <CardDescription className="mt-1">
@@ -1068,7 +1011,7 @@ export default function Dashboard() {
                   placeholder="Search users by email, username, or ID..."
                   value={userSearchQuery}
                   onChange={(e) => setUserSearchQuery(e.target.value)}
-                  className="pl-12 h-11 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all shadow-sm"
+                  className="pl-12 h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-purple-200 transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -1090,7 +1033,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-12">
                         <div className="flex flex-col items-center gap-2">
-                          <RotateCcw className="h-8 w-8 text-purple-500 animate-spin" />
+                          <RotateCcw className="h-8 w-8 text-primary animate-spin" />
                           <p className="text-gray-500">Loading global users...</p>
                         </div>
                       </TableCell>
@@ -1106,7 +1049,7 @@ export default function Dashboard() {
                     </TableRow>
                   ) : (
                     filteredGlobalUsers.map((user) => (
-                      <TableRow key={user._id} className="hover:bg-purple-50/50 transition-colors">
+                      <TableRow key={user._id} className="hover:bg-secondary/50 transition-colors">
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-bold text-gray-900">{user.username || 'N/A'}</span>
@@ -1123,7 +1066,7 @@ export default function Dashboard() {
                                 <Badge 
                                   key={visa._id} 
                                   variant="outline" 
-                                  className={`text-[10px] py-0 ${visa.status === 'Suspended' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}
+                                  className={`text-[10px] py-0 ${visa.status === 'Suspended' ? 'bg-destructive/20 text-destructive border-destructive/20' : 'bg-secondary text-primary border-primary/20'}`}
                                 >
                                   {visa.product_name} ({visa.role})
                                 </Badge>
@@ -1156,7 +1099,7 @@ export default function Dashboard() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleGlobalStatusChange(user.global_user_id, 'Active')}
-                                className="h-8 px-3 bg-green-50 text-green-700 border-green-300 hover:bg-green-100 transition-colors"
+                                className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary transition-colors"
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                                 Activate
@@ -1166,7 +1109,7 @@ export default function Dashboard() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleGlobalStatusChange(user.global_user_id, 'Suspended')}
-                                className="h-8 px-3 bg-red-50 text-red-700 border-red-300 hover:bg-red-100 transition-colors"
+                                className="h-8 px-3 bg-destructive/20 text-destructive border-destructive/20 hover:bg-destructive transition-colors"
                               >
                                 <XCircle className="h-3.5 w-3.5 mr-1" />
                                 Suspend
@@ -1184,8 +1127,6 @@ export default function Dashboard() {
         </Card>
       </TabsContent>
     </Tabs>
-      </main>
-
       {/* Confirmation Dialog */}
       <AlertDialog
         open={!!pendingAction}
@@ -1220,15 +1161,15 @@ export default function Dashboard() {
               }
               className={
                 pendingAction?.type === "delete"
-                  ? "bg-red-600 hover:bg-red-700"
+                  ? "bg-destructive hover:bg-destructive"
                   : pendingAction?.type === "undelete"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-primary hover:bg-primary"
                     : pendingAction?.value === "active"
-                      ? "bg-green-600 hover:bg-green-700"
+                      ? "bg-primary hover:bg-primary"
                       : pendingAction?.value === "inactive"
                         ? "bg-gray-600 hover:bg-gray-700"
                         : pendingAction?.value === "suspended"
-                          ? "bg-yellow-600 hover:bg-yellow-700"
+                          ? "bg-accent hover:bg-accent"
                           : ""
               }
             >

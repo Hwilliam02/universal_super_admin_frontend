@@ -89,9 +89,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-0 relative z-10">
@@ -104,7 +104,7 @@ export default function LoginPage() {
               Super Admin Portal
             </CardTitle>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <Sparkles className="h-4 w-4 text-indigo-500" />
+              <Sparkles className="h-4 w-4 text-primary" />
               <CardDescription className="text-base">
                 Enter your credentials to access the admin panel
               </CardDescription>
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <Mail className="h-4 w-4 text-blue-600" />
+                      <Mail className="h-4 w-4 text-primary" />
                       Email Address
                     </FormLabel>
                     <FormControl>
@@ -128,7 +128,7 @@ export default function LoginPage() {
                         type="email"
                         placeholder="admin@example.com"
                         {...field}
-                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </FormControl>
                     <FormMessage />
@@ -141,7 +141,7 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <Lock className="h-4 w-4 text-blue-600" />
+                      <Lock className="h-4 w-4 text-primary" />
                       Password
                     </FormLabel>
                     <FormControl>
@@ -150,7 +150,7 @@ export default function LoginPage() {
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Enter your password"
                           {...field}
-                          className="h-11 pr-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                          className="h-11 pr-10 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all"
                         />
                         <button
                           type="button"
@@ -193,7 +193,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col space-y-3 pt-6 border-t">
           <div className="text-sm text-gray-600 text-center">
             Don't have an account?{' '}
-            <Link to="/register" className="text-blue-600 hover:text-indigo-600 hover:underline font-semibold transition-colors">
+            <Link to="/register" className="text-primary hover:text-primary hover:underline font-semibold transition-colors">
               Register here
             </Link>
           </div>

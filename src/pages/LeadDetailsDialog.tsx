@@ -92,7 +92,7 @@ export default function LeadDetailsDialog({ lead, open, onOpenChange }: LeadDeta
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Contact Details Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 border-b border-blue-50 pb-2 uppercase tracking-tight">
+            <h3 className="text-sm font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-2 uppercase tracking-tight">
               <User className="h-4 w-4" />
               Contact Information
             </h3>
@@ -106,7 +106,7 @@ export default function LeadDetailsDialog({ lead, open, onOpenChange }: LeadDeta
 
           {/* Lead/Company Details Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-indigo-600 flex items-center gap-2 border-b border-indigo-50 pb-2 uppercase tracking-tight">
+            <h3 className="text-sm font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-2 uppercase tracking-tight">
               <Building2 className="h-4 w-4" />
               Lead Details
             </h3>
@@ -122,7 +122,7 @@ export default function LeadDetailsDialog({ lead, open, onOpenChange }: LeadDeta
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
            {/* Logistics Section */}
            <div className="space-y-4">
-            <h3 className="text-sm font-bold text-purple-600 flex items-center gap-2 border-b border-purple-50 pb-2 uppercase tracking-tight">
+            <h3 className="text-sm font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-2 uppercase tracking-tight">
               <MapPin className="h-4 w-4" />
               Logistics
             </h3>

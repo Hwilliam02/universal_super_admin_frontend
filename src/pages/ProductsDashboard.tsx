@@ -88,10 +88,7 @@ export default function ProductsDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-
-        {/* Header */}
+    <div className="space-y-6">        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Product Registry</h1>
@@ -99,7 +96,7 @@ export default function ProductsDashboard() {
           </div>
           <button
             onClick={() => navigate('/products/new')}
-            className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md text-sm"
+            className="px-5 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary transition-all shadow-md text-sm"
           >
             + Register Product
           </button>
@@ -109,13 +106,13 @@ export default function ProductsDashboard() {
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'products' ? 'bg-white text-indigo-700 shadow' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'products' ? 'bg-white text-primary shadow' : 'text-gray-500 hover:text-gray-700'}`}
           >
             Products ({products.length})
           </button>
           <button
             onClick={() => (selectedProduct ? loadUsersForProduct(selectedProduct) : setActiveTab('users'))}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'users' ? 'bg-white text-indigo-700 shadow' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'users' ? 'bg-white text-primary shadow' : 'text-gray-500 hover:text-gray-700'}`}
           >
             Users {selectedProduct ? `· ${selectedProduct.name}` : ''}
           </button>
@@ -126,7 +123,7 @@ export default function ProductsDashboard() {
           <div className="flex justify-center items-center h-48 text-gray-400">Loading products...</div>
         )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">{error}</div>
+          <div className="bg-destructive/20 border border-destructive/20 text-destructive rounded-lg p-4 mb-6">{error}</div>
         )}
 
         {/* Products Tab */}
@@ -136,7 +133,7 @@ export default function ProductsDashboard() {
               <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-200 rounded-2xl bg-white text-gray-400">
                 <div className="text-5xl mb-4">📦</div>
                 <p className="font-semibold text-gray-500 mb-2">No products registered yet</p>
-                <button onClick={() => navigate('/products/new')} className="mt-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">
+                <button onClick={() => navigate('/products/new')} className="mt-2 px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary">
                   Register your first product
                 </button>
               </div>
@@ -151,10 +148,10 @@ export default function ProductsDashboard() {
                     <p className="text-xs text-gray-400 font-mono mt-0.5 break-all">{product.product_id}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full border border-indigo-200">
+                    <span className="px-2.5 py-1 bg-secondary text-primary text-xs font-semibold rounded-full border border-primary/20">
                       {product.db_driver}
                     </span>
-                    <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-full border border-green-200">
+                    <span className="px-2.5 py-1 bg-secondary text-primary text-xs font-semibold rounded-full border border-primary/20">
                       {product.architecture_type}
                     </span>
                     <button
@@ -177,7 +174,7 @@ export default function ProductsDashboard() {
                       onClick={() => copyToClipboard(product.app_public_key, product._id)}
                       className={`text-xs px-4 py-1.5 rounded-lg font-semibold transition-all border ${
                         copiedId === product._id
-                          ? 'bg-green-50 text-green-700 border-green-300'
+                          ? 'bg-secondary text-primary border-primary/20'
                           : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                       }`}
                     >
@@ -201,7 +198,7 @@ export default function ProductsDashboard() {
         {activeTab === 'users' && (
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-1">
-              Users with access to: <span className="text-indigo-600">{selectedProduct?.name || 'N/A'}</span>
+              Users with access to: <span className="text-primary">{selectedProduct?.name || 'N/A'}</span>
             </h2>
             <p className="text-sm text-gray-400 mb-5">Users who have an active Visa for this product</p>
 
@@ -232,7 +229,7 @@ export default function ProductsDashboard() {
                       <td className="px-4 py-3 font-mono text-gray-500 text-xs">{u.global_user_id}</td>
                       <td className="px-4 py-3 text-gray-600">{u.role}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${u.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${u.status === 'Active' ? 'bg-secondary text-primary' : 'bg-destructive text-destructive'}`}>
                           {u.status}
                         </span>
                       </td>
@@ -243,7 +240,6 @@ export default function ProductsDashboard() {
             )}
           </div>
         )}
-      </div>
     </div>
   );
 }

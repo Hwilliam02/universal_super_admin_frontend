@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,11 +38,9 @@ interface CompanyUsersDialogProps {
 export default function CompanyUsersDialog({ 
   open, 
   onOpenChange, 
-  companyId, 
   companyName 
 }: CompanyUsersDialogProps) {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -155,7 +153,7 @@ export default function CompanyUsersDialog({
 
   const getStatusIcon = (user: User) => {
     if (user.is_deleted) {
-      return <Trash2 className="h-3 w-3 mr-1 text-red-500" />;
+      return <Trash2 className="h-3 w-3 mr-1 text-destructive" />;
     }
     switch (user.status) {
       case 'active':
@@ -196,7 +194,7 @@ export default function CompanyUsersDialog({
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Users className="h-5 w-5 text-blue-600" />
+            <Users className="h-5 w-5 text-primary" />
             Users in {companyName}
           </DialogTitle>
           <DialogDescription>
@@ -206,12 +204,12 @@ export default function CompanyUsersDialog({
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="bg-secondary border border-primary/20 rounded-lg p-3">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <CheckCircle2 className="h-4 w-4 text-primary" />
               <div>
-                <p className="text-xs font-medium text-green-600">Active</p>
-                <p className="text-lg font-bold text-green-700">{getStatusCount('active')}</p>
+                <p className="text-xs font-medium text-primary">Active</p>
+                <p className="text-lg font-bold text-primary">{getStatusCount('active')}</p>
               </div>
             </div>
           </div>
@@ -224,12 +222,12 @@ export default function CompanyUsersDialog({
               </div>
             </div>
           </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <div className="bg-accent/20 border border-accent/20 rounded-lg p-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <AlertCircle className="h-4 w-4 text-accent-foreground" />
               <div>
-                <p className="text-xs font-medium text-yellow-600">Suspended</p>
-                <p className="text-lg font-bold text-yellow-700">{getStatusCount('suspended')}</p>
+                <p className="text-xs font-medium text-accent-foreground">Suspended</p>
+                <p className="text-lg font-bold text-accent-foreground">{getStatusCount('suspended')}</p>
               </div>
             </div>
           </div>
@@ -263,16 +261,7 @@ export default function CompanyUsersDialog({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                      Loading users...
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : filteredUsers.length === 0 ? (
+              {filteredUsers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex flex-col items-center gap-2">
@@ -290,7 +279,7 @@ export default function CompanyUsersDialog({
                 filteredUsers.map((user) => (
                   <TableRow 
                     key={user._id} 
-                    className={`hover:bg-blue-50/50 transition-colors ${user.is_deleted ? 'opacity-60 bg-red-50' : ''}`}
+                    className={`hover:bg-secondary/50 transition-colors ${user.is_deleted ? 'opacity-60 bg-destructive/20' : ''}`}
                   >
                     <TableCell className="font-medium">
                       {user.first_name} {user.last_name}
@@ -327,7 +316,7 @@ export default function CompanyUsersDialog({
                           size="sm"
                           onClick={() => handleRestore(user._id)}
                           disabled={restoringId === user._id}
-                          className="h-8 px-3 bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 transition-colors"
+                          className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary hover:text-primary transition-colors"
                           title="Restore User"
                         >
                           <RotateCcw className="h-4 w-4 mr-2" />
@@ -343,7 +332,7 @@ export default function CompanyUsersDialog({
                           <DropdownMenuContent align="end">
                             {user.status !== 'active' && (
                               <DropdownMenuItem onClick={() => handleStatusChange(user._id, 'active')}>
-                                <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
+                                <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
                                 Set Active
                               </DropdownMenuItem>
                             )}
@@ -355,7 +344,7 @@ export default function CompanyUsersDialog({
                             )}
                             {user.status !== 'suspended' && (
                               <DropdownMenuItem onClick={() => handleStatusChange(user._id, 'suspended')}>
-                                <AlertCircle className="h-4 w-4 mr-2 text-yellow-600" />
+                                <AlertCircle className="h-4 w-4 mr-2 text-accent-foreground" />
                                 Suspend
                               </DropdownMenuItem>
                             )}

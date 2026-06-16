@@ -14,7 +14,7 @@ import SystemMonitorPage from './pages/SystemMonitorPage';
 import RegisterProductForm from './pages/RegisterProductForm';
 import ProductsDashboard from './pages/ProductsDashboard';
 import UniversalUsersDashboard from './pages/UniversalUsersDashboard';
-
+import Layout from '@/components/Layout';
 function RoleBasedRedirect() {
   const user = useAuthStore((state) => state.user);
   const userRoles: string[] = Array.isArray(user?.role) ? user.role : user?.role ? [user.role] : [];
@@ -50,83 +50,88 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<VerificationPage />} />
 
-        {/* Protected routes - Superadmin only */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['superadmin']}>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dev"
-          element={
-            <ProtectedRoute allowedRoles={['developer', 'dev']}>
-              <DeveloperDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/companies/:companyId/analytics"
-          element={
-            <ProtectedRoute allowedRoles={['superadmin']}>
-              <CompanyAnalyticsPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Protected Routes wrapped in Sidebar Layout */}
+        <Route element={<Layout />}>
+          {/* Superadmin only */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/companies/:companyId/analytics"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <CompanyAnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/universal-users"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin']}>
+                <UniversalUsersDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected routes - Lead only */}
-        <Route
-          path="/lead-dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['lead']}>
-              <LeadDashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Developer only */}
+          <Route
+            path="/dev"
+            element={
+              <ProtectedRoute allowedRoles={['developer', 'dev']}>
+                <DeveloperDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute allowedRoles={['developer', 'dev']}>
+                <ProductsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products/new"
+            element={
+              <ProtectedRoute allowedRoles={['developer', 'dev']}>
+                <RegisterProductForm />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected routes - Both roles */}
-        <Route
-          path="/logs"
-          element={
-            <ProtectedRoute allowedRoles={['superadmin', 'lead']}>
-              <LogsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/monitor"
-          element={
-            <ProtectedRoute allowedRoles={['superadmin', 'lead']}>
-              <SystemMonitorPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/products"
-          element={
-            <ProtectedRoute allowedRoles={['developer', 'dev']}>
-              <ProductsDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/products/new"
-          element={
-            <ProtectedRoute allowedRoles={['developer', 'dev']}>
-              <RegisterProductForm />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/universal-users"
-          element={
-            <ProtectedRoute allowedRoles={['superadmin']}>
-              <UniversalUsersDashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Lead only */}
+          <Route
+            path="/lead-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['lead']}>
+                <LeadDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shared (Superadmin / Lead) */}
+          <Route
+            path="/logs"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'lead']}>
+                <LogsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/monitor"
+            element={
+              <ProtectedRoute allowedRoles={['superadmin', 'lead']}>
+                <SystemMonitorPage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

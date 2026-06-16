@@ -156,13 +156,13 @@ export default function RegisterProductForm() {
           )}
 
           {isMultiTenant && (
-            <div className="bg-blue-50 rounded-xl p-3 text-sm text-blue-700 flex items-center gap-2">
+            <div className="bg-secondary rounded-xl p-3 text-sm text-primary flex items-center gap-2">
               <span>🔒</span> Multi‑tenant products don't require a Database URI — it will be stored as <code className="bg-white px-1.5 py-0.5 rounded">null</code>.
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3 text-red-700 text-sm animate-shake">
+            <div className="bg-destructive/20 border-l-4 border-destructive/20 rounded-lg p-3 text-destructive text-sm animate-shake">
               ⚠️ {error}
             </div>
           )}
@@ -205,13 +205,13 @@ export default function RegisterProductForm() {
         </form>
 
         {result && (
-          <div className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 shadow-md animate-fadeInUp">
-            <h2 className="text-green-700 font-bold text-xl flex items-center gap-2">
+          <div className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-primary/20 rounded-xl p-5 shadow-md animate-fadeInUp">
+            <h2 className="text-primary font-bold text-xl flex items-center gap-2">
               ✅ Product Registered! <span className="text-2xl">🎉</span>
             </h2>
             <p className="text-sm text-gray-700 mt-2">
               <strong className="font-mono">Product ID:</strong>{' '}
-              <code className="bg-white px-2 py-0.5 rounded text-blue-700">
+              <code className="bg-white px-2 py-0.5 rounded text-primary">
                 {result.product?.product_id}
               </code>
             </p>
@@ -219,7 +219,7 @@ export default function RegisterProductForm() {
               <p className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-1">
                 🔑 Public Key <span className="text-xs font-normal">(copy to satellite app)</span>
               </p>
-              <pre className="bg-gray-900 text-green-300 text-xs p-4 rounded-xl overflow-auto whitespace-pre-wrap font-mono shadow-inner">
+              <pre className="bg-gray-900 text-primary text-xs p-4 rounded-xl overflow-auto whitespace-pre-wrap font-mono shadow-inner">
                 {result.product?.app_public_key}
               </pre>
             </div>

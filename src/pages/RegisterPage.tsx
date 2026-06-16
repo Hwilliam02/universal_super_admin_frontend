@@ -43,8 +43,9 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
-    // confirmPassword is UI-only; role is set server-side — strip both before sending
-    const { confirmPassword: _cp, ...payload } = data;
+    // confirmPassword is UI-only
+    const { confirmPassword: _cp, ...rest } = data;
+    const payload = { ...rest, role: ['superadmin'] };
     try {
       await register(payload);
       toast({
@@ -82,9 +83,9 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-0 relative z-10">
@@ -97,7 +98,7 @@ export default function RegisterPage() {
               Create Account
             </CardTitle>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <Sparkles className="h-4 w-4 text-indigo-500" />
+              <Sparkles className="h-4 w-4 text-primary" />
               <CardDescription className="text-base">
                 Register as a Super Admin
               </CardDescription>
@@ -113,11 +114,11 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <User className="h-4 w-4 text-blue-600" />
+                      <User className="h-4 w-4 text-primary" />
                       First Name
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                      <Input placeholder="John" {...field} className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,11 +130,11 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <User className="h-4 w-4 text-blue-600" />
+                      <User className="h-4 w-4 text-primary" />
                       Last Name
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                      <Input placeholder="Doe" {...field} className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,7 +146,7 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <Mail className="h-4 w-4 text-blue-600" />
+                      <Mail className="h-4 w-4 text-primary" />
                       Email Address
                     </FormLabel>
                     <FormControl>
@@ -153,7 +154,7 @@ export default function RegisterPage() {
                         type="email"
                         placeholder="admin@example.com"
                         {...field}
-                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </FormControl>
                     <FormMessage />
@@ -166,7 +167,7 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <Lock className="h-4 w-4 text-blue-600" />
+                      <Lock className="h-4 w-4 text-primary" />
                       Password
                     </FormLabel>
                     <FormControl>
@@ -174,7 +175,7 @@ export default function RegisterPage() {
                         type="password"
                         placeholder="Create a password (min 6 characters)"
                         {...field}
-                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </FormControl>
                     <FormMessage />
@@ -187,7 +188,7 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-gray-700">
-                      <Lock className="h-4 w-4 text-blue-600" />
+                      <Lock className="h-4 w-4 text-primary" />
                       Confirm Password
                     </FormLabel>
                     <FormControl>
@@ -195,7 +196,7 @@ export default function RegisterPage() {
                         type="password"
                         placeholder="Confirm your password"
                         {...field}
-                        className="h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        className="h-11 border-gray-200 focus:border-primary/20 focus:ring-2 focus:ring-blue-200 transition-all"
                       />
                     </FormControl>
                     <FormMessage />
@@ -225,7 +226,7 @@ export default function RegisterPage() {
         <CardFooter className="flex flex-col space-y-3 pt-6 border-t">
           <div className="text-sm text-gray-600 text-center w-full">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-600 hover:text-indigo-600 hover:underline font-semibold transition-colors">
+            <Link to="/login" className="text-primary hover:text-primary hover:underline font-semibold transition-colors">
               Login here
             </Link>
           </div>
