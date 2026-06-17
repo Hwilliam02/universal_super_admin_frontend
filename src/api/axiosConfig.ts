@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = (() => {
+  const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+
+  if (envUrl.includes('/server1')) {
+    return envUrl;
+  }
+
+  if (envUrl.includes('/api/v1')) {
+    return envUrl.replace('/api/v1', '/server1/api/v1');
+  }
+
+  return `${envUrl.replace(/\/$/, '')}/server1/api/v1`;
+})();
 
 // Create axios instance with default config
 export const api = axios.create({

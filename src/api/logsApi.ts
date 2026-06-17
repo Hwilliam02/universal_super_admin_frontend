@@ -14,10 +14,11 @@ export interface LogQuery {
   startDate?: string;
   endDate?: string;
   severity?: string; // exceptions only
+  productId?: string; // exceptions only
 }
 
 export const getActivityLogs = async (params: LogQuery) => {
-  const res = await api.get('/logs/activity', { params });
+  const res = await api.get('/activity-logs', { params });
   return res.data;
 };
 

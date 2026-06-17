@@ -21,10 +21,10 @@ interface LogQuery {
   companyName?: string
   platform?: string
   source?: string
-  search?: string
   startDate?: string
   endDate?: string
   severity?: string
+  productId?: string
 }
 
 interface ApiResponse<T> {
@@ -45,8 +45,10 @@ interface ActivityLogItem {
   module?: string
   payload?: unknown
   previousData?: unknown
+  errorDetails?: unknown
   ip?: string
   userObjectId?: string
+  userId?: string
   message?: string
   platform?: string
   source?: string
@@ -55,16 +57,19 @@ interface ActivityLogItem {
   companyDb_uri?: string
   companyDbName?: string
   createdAt?: string
+  updatedAt?: string
   admin?: {
     name?: string
     first_name?: string
     last_name?: string
     email?: string
+    role?: string[]
   }
 }
 
 interface ExceptionLogItem extends ActivityLogItem {
   severity?: 'low' | 'medium' | 'high'
+  productId?: string
 }
 
 type LogItem = ActivityLogItem | ExceptionLogItem
@@ -141,6 +146,8 @@ export default function LogsPage() {
   const [appliedEndDate, setAppliedEndDate] = useState('')
   const [companyNameFilter, setCompanyNameFilter] = useState('')
   const [appliedCompanyNameFilter, setAppliedCompanyNameFilter] = useState('')
+  const [productIdFilter, setProductIdFilter] = useState('')
+  const [appliedProductIdFilter, setAppliedProductIdFilter] = useState('')
 
   // pagination
   const [page, setPage] = useState(1)
@@ -161,6 +168,7 @@ export default function LogsPage() {
     startDate: appliedStartDate || undefined,
     endDate: appliedEndDate || undefined,
     companyName: appliedCompanyNameFilter || undefined,
+    productId: tab === 'exceptions' && appliedProductIdFilter ? appliedProductIdFilter : undefined,
 
     sortBy: 'createdAt',
     order: 'desc',
@@ -174,6 +182,7 @@ export default function LogsPage() {
     appliedStartDate,
     appliedEndDate,
     appliedCompanyNameFilter,
+    appliedProductIdFilter,
     tab,
   ])
 
@@ -185,7 +194,8 @@ export default function LogsPage() {
       appliedSearch ||
       appliedStartDate ||
       appliedEndDate ||
-      appliedCompanyNameFilter
+      appliedCompanyNameFilter ||
+      appliedProductIdFilter
     )
   }, [
     appliedModuleFilter,
@@ -195,6 +205,7 @@ export default function LogsPage() {
     appliedStartDate,
     appliedEndDate,
     appliedCompanyNameFilter,
+    appliedProductIdFilter,
   ])
 
   const fetchLogs = async () => {
@@ -237,6 +248,7 @@ export default function LogsPage() {
     appliedStartDate,
     appliedEndDate,
     appliedCompanyNameFilter,
+    appliedProductIdFilter,
   ])
 
   const onApplyFilters = () => {
@@ -244,6 +256,7 @@ export default function LogsPage() {
     setAppliedActionFilter(actionFilter)
     setAppliedSeverityFilter(severityFilter)
     setAppliedCompanyNameFilter(companyNameFilter)
+    setAppliedProductIdFilter(productIdFilter)
 
     setAppliedSearch(search)
     setAppliedStartDate(startDate)
@@ -255,14 +268,15 @@ export default function LogsPage() {
     setModuleFilter('')
     setActionFilter('')
     setSeverityFilter('')
-      setCompanyNameFilter('') // Add this line
+    setCompanyNameFilter('')
 
     setSearch('')
     setStartDate('')
     setEndDate('')
     setAppliedModuleFilter('')
     setAppliedActionFilter('')
-      setAppliedCompanyNameFilter('') // Add this line
+    setAppliedCompanyNameFilter('')
+    setAppliedProductIdFilter('')
 
     setAppliedSeverityFilter('')
     setAppliedSearch('')
@@ -291,8 +305,9 @@ export default function LogsPage() {
       'Role',
       'Platform',
       'Source',
+      tab === 'exceptions' ? 'Product' : null,
       'Company'
-    ]
+    ].filter(Boolean) as string[]
 
     // Create data rows
     const data = items.map((item) => [
@@ -304,6 +319,7 @@ export default function LogsPage() {
       Array.isArray(item.role) ? item.role.join(', ') : (item.role || '-'),
       item.platform || '-',
       item.source || '-',
+      ...(tab === 'exceptions' ? [(item as ExceptionLogItem).productId || '-'] : []),
       item.companyName || '-',
     ])
 
@@ -463,6 +479,17 @@ export default function LogsPage() {
                       className="h-9"
                     />
                   </div>
+                  {tab === 'exceptions' && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Product ID</label>
+                      <Input 
+                        placeholder="Filter by product" 
+                        value={productIdFilter} 
+                        onChange={(e) => setProductIdFilter(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -534,8 +561,12 @@ export default function LogsPage() {
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">Message</th>
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[140px]">Email</th>
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[120px]">Role</th>
+                      <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[120px]">IP</th>
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[100px]">Platform</th>
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[100px]">Source</th>
+                      {tab === 'exceptions' && (
+                        <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[120px]">Product</th>
+                      )}
                       <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700 dark:text-slate-300 w-[140px]">Company</th>
                     </tr>
                   </thead>
@@ -589,7 +620,7 @@ export default function LogsPage() {
                               <div className="truncate text-slate-700 dark:text-slate-300" title={item.message}>
                                 {item.message || '-'}
                               </div>
-                              {(!!item.payload || !!item.previousData) && (
+                              {(!!item.payload || !!item.previousData || !!(item as ExceptionLogItem).severity) && (
                                 <button
                                   type="button"
                                   className="text-xs text-primary dark:text-primary/70 hover:text-primary dark:hover:text-primary/70 underline-offset-2 hover:underline self-start font-medium transition-colors"
@@ -600,18 +631,24 @@ export default function LogsPage() {
                               )}
                             </div>
                           </td>
-                          <td className="p-4 align-middle truncate text-slate-700 dark:text-slate-300" title={item.admin?.email || item.userObjectId}>
-                            {item.admin?.email || item.userObjectId || '-'}
+                          <td className="p-4 align-middle truncate text-slate-700 dark:text-slate-300" title={item.admin?.email || item.userObjectId || item.userId}>
+                            {item.admin?.email || item.userObjectId || item.userId || '-'}
                           </td>
                           <td className="p-4 align-middle text-xs text-slate-600 dark:text-slate-400">
                             {Array.isArray(item.role) ? item.role.join(', ') : (item.role || '-')}
                           </td>
+                          <td className="p-4 align-middle text-xs text-slate-600 dark:text-slate-400">{item.ip || '-'}</td>
                           <td className="p-4 align-middle">
                             <Badge variant="outline" className="text-xs font-medium">
                               {item.platform || '-'}
                             </Badge>
                           </td>
                           <td className="p-4 align-middle text-xs text-slate-600 dark:text-slate-400">{item.source || '-'}</td>
+                          {tab === 'exceptions' && (
+                            <td className="p-4 align-middle truncate text-xs text-slate-600 dark:text-slate-400" title={(item as ExceptionLogItem).productId}>
+                              {(item as ExceptionLogItem).productId || '-'}
+                            </td>
+                          )}
                           <td className="p-4 align-middle truncate text-xs text-slate-600 dark:text-slate-400" title={item.companyName}>
                             {item.companyName || '-'}
                           </td>
@@ -689,6 +726,12 @@ export default function LogsPage() {
                       {selectedLog.module}
                     </span>
                   )}
+                  {(selectedLog?.admin?.email || selectedLog?.userObjectId || selectedLog?.userId) && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-medium">User:</span>
+                      {selectedLog?.admin?.email || selectedLog?.userObjectId || selectedLog?.userId}
+                    </span>
+                  )}
                   {selectedLog?.action ? (
                     <span className="flex items-center gap-1.5">
                       <span className="font-medium">Action:</span>
@@ -698,6 +741,12 @@ export default function LogsPage() {
                     <span className="flex items-center gap-1.5">
                       <span className="font-medium">Severity:</span>
                       {(selectedLog as ExceptionLogItem).severity}
+                    </span>
+                  )}
+                  {selectedLog?.companyName && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-medium">Company:</span>
+                      {selectedLog.companyName}
                     </span>
                   )}
                 </div>
@@ -714,9 +763,10 @@ export default function LogsPage() {
                   {(() => {
                     const prev = toPlainObject(selectedLog?.previousData)
                     const curr = toPlainObject(selectedLog?.payload)
+                    const errorDetails = toPlainObject((selectedLog as ExceptionLogItem)?.errorDetails)
                     const keys = Array.from(new Set([...Object.keys(prev), ...Object.keys(curr)])).sort()
 
-                    if (keys.length === 0) {
+                    if (keys.length === 0 && Object.keys(errorDetails).length === 0) {
                       return (
                         <div className="p-8 text-center">
                           <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
@@ -735,7 +785,16 @@ export default function LogsPage() {
                       : ''
 
                     return (
-                      <div className="overflow-auto" style={{ maxHeight: '400px' }}>
+                      <div className="space-y-6 p-4">
+                        {Object.keys(errorDetails).length > 0 && (
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Error Details</h4>
+                            <pre className="max-h-[220px] overflow-auto rounded-lg bg-slate-950 text-slate-100 p-4 text-[11px] leading-5">
+                              {JSON.stringify(errorDetails, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                        <div className="overflow-auto" style={{ maxHeight: '400px' }}>
                         <table className="w-full text-xs">
                           <thead className="sticky top-0 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900">
                             <tr>
@@ -790,6 +849,7 @@ export default function LogsPage() {
                             })}
                           </tbody>
                         </table>
+                        </div>
                       </div>
                     )
                   })()}
