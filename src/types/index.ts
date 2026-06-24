@@ -15,9 +15,11 @@ export interface User {
 }
 
 export interface Visa {
-  _id: string;
+  _id?: string;
+  id?: string;
   global_user_id: string;
-  product_id: string;
+  product_id?: string;
+  productId?: string;
   product_name?: string;
   role: string;
   status: 'Active' | 'Suspended';
@@ -28,6 +30,7 @@ export interface Visa {
 export interface GlobalUser {
   _id: string;
   global_user_id: string;
+  global_company_id?: string;
   username?: string;
   email: string;
   status: 'Active' | 'Suspended';

@@ -1,19 +1,34 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, RotateCcw, Search, Users, XCircle } from "lucide-react";
-import { getGlobalUsers, updateGlobalUserStatus } from "@/api";
+import { AlertCircle, CheckCircle2, RotateCcw, Search, Users, XCircle, Key, Building2, ShieldAlert } from "lucide-react";
+import { getGlobalUsers, updateGlobalUserStatus, assignUserToCompany, updateUserVisa, adminChangePassword } from "@/api";
+import { getAllProducts } from "@/api/productApi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalUser } from "@/types";
 
 export default function UniversalUsersDashboard() {
   const { toast } = useToast();
   const [users, setUsers] = useState<GlobalUser[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Dialog States
+  const [selectedUser, setSelectedUser] = useState<GlobalUser | null>(null);
+  const [isCompanyDialogOpen, setIsCompanyDialogOpen] = useState(false);
+  const [isVisaDialogOpen, setIsVisaDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+
+  // Form States
+  const [companyId, setCompanyId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [visaRole, setVisaRole] = useState("User");
+  const [newPassword, setNewPassword] = useState("");
 
   const fetchGlobalUsers = useCallback(async () => {
     try {
@@ -33,9 +48,21 @@ export default function UniversalUsersDashboard() {
     }
   }, [toast]);
 
+  const fetchProductsList = useCallback(async () => {
+    try {
+      const res = await getAllProducts();
+      if ((res.status === "success" || res.status === true) && res.data) {
+        setProducts(res.data);
+      }
+    } catch {
+      console.error("Failed to fetch products");
+    }
+  }, []);
+
   useEffect(() => {
     fetchGlobalUsers();
-  }, [fetchGlobalUsers]);
+    fetchProductsList();
+  }, [fetchGlobalUsers, fetchProductsList]);
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -67,6 +94,45 @@ export default function UniversalUsersDashboard() {
     }
   };
 
+  const handleAssignCompany = async () => {
+    if (!selectedUser || !companyId) return;
+    try {
+      await assignUserToCompany(selectedUser.global_user_id, companyId);
+      toast({ title: "Success", description: "Company assigned successfully", variant: "success" });
+      setIsCompanyDialogOpen(false);
+      setCompanyId("");
+      fetchGlobalUsers();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.response?.data?.message || "Failed to assign company", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateVisa = async () => {
+    if (!selectedUser || !productId || !visaRole) return;
+    try {
+      await updateUserVisa(selectedUser.global_user_id, productId, visaRole);
+      toast({ title: "Success", description: "Visa/Role updated successfully", variant: "success" });
+      setIsVisaDialogOpen(false);
+      setProductId("");
+      setVisaRole("User");
+      fetchGlobalUsers();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.response?.data?.message || "Failed to update visa", variant: "destructive" });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!selectedUser || !newPassword) return;
+    try {
+      await adminChangePassword(selectedUser.email, newPassword);
+      toast({ title: "Success", description: "Password changed successfully", variant: "success" });
+      setIsPasswordDialogOpen(false);
+      setNewPassword("");
+    } catch (e: any) {
+      toast({ title: "Error", description: e.response?.data?.message || "Failed to change password", variant: "destructive" });
+    }
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -80,6 +146,27 @@ export default function UniversalUsersDashboard() {
   const activeUsers = users.filter((user) => user.status === "Active").length;
   const suspendedUsers = users.filter((user) => user.status === "Suspended").length;
   const totalVisas = users.reduce((count, user) => count + (user.visas?.length || 0), 0);
+
+  // When opening the visa dialog, default to the first product if available
+  const handleOpenVisaDialog = (user: GlobalUser) => {
+    setSelectedUser(user);
+    const initialProductId = products.length > 0 ? products[0].product_id : "";
+    setProductId(initialProductId);
+    
+    // Check if user already has a visa for this initial product
+    const existingVisa = user.visas?.find((v: any) => v.productId === initialProductId);
+    setVisaRole(existingVisa ? existingVisa.role : "User");
+    
+    setIsVisaDialogOpen(true);
+  };
+
+  const handleProductSelectionChange = (newProductId: string) => {
+    setProductId(newProductId);
+    if (selectedUser) {
+      const existingVisa = selectedUser.visas?.find((v: any) => v.productId === newProductId);
+      setVisaRole(existingVisa ? existingVisa.role : "User");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -168,7 +255,7 @@ export default function UniversalUsersDashboard() {
               <TableHeader>
                 <TableRow className="bg-gray-50 hover:bg-gray-50">
                   <TableHead className="font-semibold">User Info</TableHead>
-                  <TableHead className="font-semibold">Global ID</TableHead>
+                  <TableHead className="font-semibold">Global ID / Company</TableHead>
                   <TableHead className="font-semibold">Product Access (Visas)</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold">Created</TableHead>
@@ -196,20 +283,23 @@ export default function UniversalUsersDashboard() {
                   </TableRow>
                 ) : (
                   filteredUsers.map((user) => (
-                    <TableRow key={user._id} className="hover:bg-secondary/50 transition-colors">
+                    <TableRow key={user._id || user.global_user_id} className="hover:bg-secondary/50 transition-colors">
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-bold text-gray-900">{user.username || "N/A"}</span>
                           <span className="text-sm text-gray-500">{user.email}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-[10px] text-gray-400">{user.global_user_id}</TableCell>
+                      <TableCell>
+                         <div className="font-mono text-[10px] text-gray-400">{user.global_user_id}</div>
+                         <div className="text-xs text-primary mt-1">{user.global_company_id ? `Company: ${user.global_company_id.substring(0,8)}...` : 'No Company'}</div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1 max-w-[300px]">
                           {user.visas && user.visas.length > 0 ? (
                             user.visas.map((visa) => (
                               <Badge
-                                key={visa._id}
+                                key={visa._id || visa.productId}
                                 variant="outline"
                                 className={`text-[10px] py-0 ${visa.status === "Suspended" ? "bg-destructive/20 text-destructive border-destructive/20" : "bg-secondary text-primary border-primary/20"}`}
                               >
@@ -236,7 +326,35 @@ export default function UniversalUsersDashboard() {
                       </TableCell>
                       <TableCell className="text-gray-600 text-sm">{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Assign Company"
+                            onClick={() => { setSelectedUser(user); setIsCompanyDialogOpen(true); }}
+                            className="h-8 w-8 p-0 text-slate-500"
+                          >
+                            <Building2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Update Visa/Role"
+                            onClick={() => handleOpenVisaDialog(user)}
+                            className="h-8 w-8 p-0 text-slate-500"
+                          >
+                            <ShieldAlert className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Change Password"
+                            onClick={() => { setSelectedUser(user); setIsPasswordDialogOpen(true); }}
+                            className="h-8 w-8 p-0 text-slate-500"
+                          >
+                            <Key className="h-4 w-4" />
+                          </Button>
+
                           {user.status === "Suspended" ? (
                             <Button
                               variant="outline"
@@ -244,7 +362,6 @@ export default function UniversalUsersDashboard() {
                               onClick={() => handleGlobalStatusChange(user.global_user_id, "Active")}
                               className="h-8 px-3 bg-secondary text-primary border-primary/20 hover:bg-secondary transition-colors"
                             >
-                              <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                               Activate
                             </Button>
                           ) : (
@@ -254,7 +371,6 @@ export default function UniversalUsersDashboard() {
                               onClick={() => handleGlobalStatusChange(user.global_user_id, "Suspended")}
                               className="h-8 px-3 bg-destructive/20 text-destructive border-destructive/20 hover:bg-destructive transition-colors"
                             >
-                              <XCircle className="h-3.5 w-3.5 mr-1" />
                               Suspend
                             </Button>
                           )}
@@ -268,6 +384,92 @@ export default function UniversalUsersDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Assign Company Dialog */}
+      <Dialog open={isCompanyDialogOpen} onOpenChange={setIsCompanyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Company</DialogTitle>
+            <DialogDescription>Assign a company to {selectedUser?.email}</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input 
+              placeholder="Enter Company ID" 
+              value={companyId} 
+              onChange={(e) => setCompanyId(e.target.value)} 
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCompanyDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAssignCompany}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Visa Dialog */}
+      <Dialog open={isVisaDialogOpen} onOpenChange={setIsVisaDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Product Visa & Role</DialogTitle>
+            <DialogDescription>Grant {selectedUser?.email} access to a product or change their role.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase">Select Product</label>
+              <select 
+                value={productId} 
+                onChange={(e) => handleProductSelectionChange(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              >
+                <option value="" disabled>Select a product...</option>
+                {products.map((p) => (
+                  <option key={p._id || p.product_id} value={p.product_id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase">Assigned Role</label>
+              <select 
+                value={visaRole} 
+                onChange={(e) => setVisaRole(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              >
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsVisaDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleUpdateVisa}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Password</DialogTitle>
+            <DialogDescription>Force change password for {selectedUser?.email}. No old password required.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input 
+              type="password"
+              placeholder="Enter New Password" 
+              value={newPassword} 
+              onChange={(e) => setNewPassword(e.target.value)} 
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleChangePassword}>Save Password</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

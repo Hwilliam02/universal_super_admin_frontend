@@ -41,7 +41,22 @@ export const getGlobalUsers = async (): Promise<ApiResponse<GlobalUser[]>> => {
 };
 
 export const updateGlobalUserStatus = async (globalUserId: string, status: 'Active' | 'Suspended'): Promise<ApiResponse<GlobalUser>> => {
-  const response = await api.patch(`/users/global/${globalUserId}/status`, { status });
+  const response = await api.patch(`/global-users/${globalUserId}/status`, { status });
+  return response.data;
+};
+
+export const assignUserToCompany = async (globalUserId: string, companyId: string): Promise<ApiResponse<any>> => {
+  const response = await api.patch(`/global-users/${globalUserId}/assign-company`, { companyId });
+  return response.data;
+};
+
+export const updateUserVisa = async (globalUserId: string, productId: string, role: string): Promise<ApiResponse<any>> => {
+  const response = await api.patch(`/global-users/${globalUserId}/visas`, { productId, role });
+  return response.data;
+};
+
+export const adminChangePassword = async (targetEmail: string, newPassword: string): Promise<ApiResponse<any>> => {
+  const response = await api.post('/universal-auth/admin-change-password', { target_email: targetEmail, new_password: newPassword });
   return response.data;
 };
 
@@ -52,7 +67,9 @@ export const userApi = {
   restoreUser,
   getGlobalUsers,
   updateGlobalUserStatus,
+  assignUserToCompany,
+  updateUserVisa,
+  adminChangePassword,
 };
-
 
 export default userApi;
